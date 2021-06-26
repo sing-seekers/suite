@@ -22,9 +22,6 @@ public class Binder {
 	}
 
 	public static boolean bind(Node n0, Node n1, Trail trail) {
-		n0 = n0.finalNode();
-		n1 = n1.finalNode();
-
 		if (n0 == n1)
 			return true;
 
@@ -32,14 +29,18 @@ public class Binder {
 		var clazz1 = n1.getClass();
 
 		if (clazz0 == Reference.class) {
-			trail.addBind((Reference) n0, n1);
-			return true;
+			var ref0 = (Reference) n0;
+			var oldn0 = ref0.node;
+			var finaln1 = n1.finalNode();
+			trail.addDirectedBind(ref0, finaln1);
+			return bind(oldn0, finaln1, trail);
 		} else if (clazz1 == Reference.class) {
-			trail.addBind((Reference) n1, n0);
-			return true;
-		}
-
-		if (clazz0 == Dict.class && clazz1 == Dict.class) {
+			var ref1 = (Reference) n1;
+			var oldn1 = ref1.node;
+			var finaln0 = n0.finalNode();
+			trail.addDirectedBind(ref1, finaln0);
+			return bind(finaln0, oldn1, trail);
+		} else if (clazz0 == Dict.class && clazz1 == Dict.class) {
 			var dict0 = (Dict) n0;
 			var dict1 = (Dict) n1;
 			bind(dict0.reference, dict1.reference, trail);
